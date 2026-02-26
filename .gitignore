@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+pipeline/venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Node
+app/node_modules/
+app/dist/
+
+# Data (generated — keep .gitkeep)
+data/restaurants.raw.json
+data/restaurants.normalized.json
+data/.geocode_cache.json
+
+# Env
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
