@@ -28,7 +28,7 @@ function App() {
 
   // Load restaurant data
   useEffect(() => {
-    fetch("/restaurants.json")
+    fetch(`${import.meta.env.BASE_URL}restaurants.json`)
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
