@@ -30,11 +30,13 @@ export function useGeolocation(): UseGeolocationResult {
 
         const id = navigator.geolocation.watchPosition(
             (pos) => {
-                setPosition({
+                const newPos = {
                     lat: pos.coords.latitude,
                     lng: pos.coords.longitude,
                     accuracy: pos.coords.accuracy,
-                });
+                };
+                console.log("[Near Me] Position resolved:", newPos);
+                setPosition(newPos);
                 setLoading(false);
             },
             (err) => {
@@ -54,9 +56,9 @@ export function useGeolocation(): UseGeolocationResult {
                 setLoading(false);
             },
             {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 30000,
+                enableHighAccuracy: false,
+                timeout: 30000,
+                maximumAge: 60000,
             }
         );
 

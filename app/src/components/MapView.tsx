@@ -37,6 +37,8 @@ interface MapViewProps {
     maxDistance: number | null;
     selectedRestaurant: RestaurantWithDistance | null;
     onSelectRestaurant: (r: RestaurantWithDistance | null) => void;
+    isFavorite: (id: string) => boolean;
+    onToggleFavorite: (id: string) => void;
 }
 
 /** Subcomponent: flies to selected restaurant and opens its popup */
@@ -52,13 +54,14 @@ function MapController({
     markerRefs: React.MutableRefObject<Record<string, L.Marker | null>>;
 }) {
     const map = useMap();
+    const hasFlownToUser = useRef(false);
 
+    // Fly to selected restaurant
     useEffect(() => {
         if (selectedRestaurant?.lat && selectedRestaurant?.lng) {
             map.flyTo([selectedRestaurant.lat, selectedRestaurant.lng], 16, {
                 duration: 0.8,
             });
-            // Open the popup after flyTo animation ends
             const timer = setTimeout(() => {
                 const marker = markerRefs.current[selectedRestaurant.id];
                 if (marker) {
@@ -66,10 +69,22 @@ function MapController({
                 }
             }, 850);
             return () => clearTimeout(timer);
-        } else if (nearMeActive && userPosition) {
-            map.flyTo([userPosition.lat, userPosition.lng], 13, { duration: 0.8 });
         }
-    }, [map, selectedRestaurant, userPosition, nearMeActive, markerRefs]);
+    }, [map, selectedRestaurant, markerRefs]);
+
+    // Fly to user position when Near Me activates
+    useEffect(() => {
+        if (nearMeActive && userPosition) {
+            if (!hasFlownToUser.current) {
+                console.log("[Map] Flying to user position:", userPosition);
+                map.flyTo([userPosition.lat, userPosition.lng], 14, { duration: 1.0 });
+                hasFlownToUser.current = true;
+            }
+        }
+        if (!nearMeActive) {
+            hasFlownToUser.current = false;
+        }
+    }, [map, userPosition, nearMeActive]);
 
     return null;
 }
@@ -81,6 +96,8 @@ export default function MapView({
     maxDistance,
     selectedRestaurant,
     onSelectRestaurant,
+    isFavorite,
+    onToggleFavorite,
 }: MapViewProps) {
     // Store refs to all markers so we can open popups programmatically
     const markerRefs = useRef<Record<string, L.Marker | null>>({});
@@ -175,7 +192,18 @@ export default function MapView({
                                             loading="lazy"
                                         />
                                     )}
-                                    <h3 className="info-name">{restaurant.name}</h3>
+                                    <h3 className="info-name">{restaurant.name}
+                                        <button
+                                            className={`info-fav-btn ${isFavorite(restaurant.id) ? "fav-active" : ""}`}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onToggleFavorite(restaurant.id);
+                                            }}
+                                            aria-label="Toggle favorite"
+                                        >
+                                            {isFavorite(restaurant.id) ? "❤️" : "🤍"}
+                                        </button>
+                                    </h3>
                                     <p className="info-address">
                                         {restaurant.address || "Address not available"}
                                     </p>

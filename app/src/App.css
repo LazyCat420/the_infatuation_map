@@ -800,6 +800,43 @@ body,
   font-weight: 700;
   color: #1a1a2e;
   margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.info-fav-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 2px;
+  line-height: 1;
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
+}
+
+.info-fav-btn:hover {
+  transform: scale(1.3);
+}
+
+.info-fav-btn.fav-active {
+  animation: fav-pop 0.3s ease;
+}
+
+@keyframes fav-pop {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.4);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 .info-address {
@@ -861,53 +898,281 @@ body,
   color: white;
 }
 
+/* ---- User Location Dot ---- */
+.user-location-icon {
+  background: transparent !important;
+  border: none !important;
+}
+
+.user-dot {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-dot-inner {
+  width: 16px;
+  height: 16px;
+  background: #4285f4;
+  border: 3px solid white;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(66, 133, 244, 0.6), 0 2px 6px rgba(0, 0, 0, 0.3);
+  z-index: 2;
+  position: relative;
+}
+
+.user-dot-pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  background: rgba(66, 133, 244, 0.25);
+  border-radius: 50%;
+  animation: user-pulse 2s ease-out infinite;
+  z-index: 1;
+}
+
+@keyframes user-pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(2);
+    opacity: 0;
+  }
+}
+
+/* ---- Mobile Bottom Nav (hidden on desktop) ---- */
+.mobile-bottom-nav {
+  display: none;
+}
+
 /* ---- Mobile Responsive ---- */
 @media (max-width: 768px) {
   :root {
     --sidebar-width: 100vw;
   }
 
-  .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 60vh;
-    bottom: auto;
-    border-right: none;
-    border-bottom: 1px solid var(--border-subtle);
-    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-  }
-
-  .sidebar.closed {
-    transform: translateY(-100%);
-  }
-
-  .sidebar.open {
-    transform: translateY(0);
-  }
-
+  /* Hide desktop sidebar toggle on mobile */
   .sidebar-toggle {
+    display: none;
+  }
+
+  /* === Bottom Navigation === */
+  .mobile-bottom-nav {
+    display: flex;
     position: fixed;
-    top: auto;
-    bottom: 42vh;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 56px;
-    height: 28px;
-    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1100;
+    background: rgba(10, 10, 15, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border-subtle);
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px)) 8px;
+    gap: 4px;
   }
 
-  .sidebar-toggle.open {
-    left: 50%;
-    bottom: 42vh;
+  .mobile-nav-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 4px;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+    font-family: inherit;
   }
 
-  .map-container {
+  .mobile-nav-btn.active {
+    color: var(--accent-red);
+    background: rgba(255, 77, 77, 0.1);
+  }
+
+  .mobile-nav-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .mobile-nav-icon {
+    font-size: 1.3rem;
+    line-height: 1;
+  }
+
+  .mobile-nav-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* === View Toggling === */
+  /* Map view (default on mobile) */
+  .mobile-view-map .sidebar {
+    display: none;
+  }
+
+  .mobile-view-map .map-container {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
-    height: 100vh;
+    height: calc(100vh - 64px);
+  }
+
+  /* List view */
+  .mobile-view-list .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: calc(100vh - 64px);
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
+    border-right: none;
+    z-index: 1000;
+  }
+
+  .mobile-view-list .map-container {
+    display: none;
+  }
+
+  /* Always show sidebar as open on mobile list view */
+  .mobile-view-list .sidebar.closed {
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
+    position: fixed;
+  }
+
+  /* === Sidebar Mobile Adjustments === */
+  .sidebar-header {
+    padding: 16px 16px 12px;
+  }
+
+  .app-title {
+    font-size: 1.4rem;
+  }
+
+  .action-row {
+    padding: 12px 16px 0;
+  }
+
+  .search-section {
+    padding: 12px 16px 0;
+  }
+
+  .filter-section {
+    padding: 8px 16px 0;
+  }
+
+  .filter-group {
+    padding: 8px 16px 0;
+  }
+
+  /* === Card Readability === */
+  .restaurant-list {
+    padding: 8px;
+    gap: 10px;
+  }
+
+  .restaurant-card {
+    border-radius: var(--radius-md);
+  }
+
+  .card-image-wrap {
+    height: 160px;
+  }
+
+  .card-body {
+    padding: 12px 14px 14px;
+  }
+
+  .card-name {
+    font-size: 1.05rem;
+  }
+
+  .card-address {
+    font-size: 0.82rem;
+  }
+
+  .card-meta {
+    gap: 6px;
+  }
+
+  .card-tag {
+    font-size: 0.7rem;
+    padding: 4px 10px;
+  }
+
+  .card-actions {
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .card-link {
+    font-size: 0.78rem;
+    padding: 8px 12px;
+  }
+
+  /* === Map Popup Mobile === */
+  .leaflet-popup-content {
+    margin: 8px !important;
+  }
+
+  .info-window {
+    min-width: 200px;
+  }
+
+  .info-image {
+    height: 100px;
+  }
+
+  .info-name {
+    font-size: 0.9rem;
+  }
+
+  /* === Results count === */
+  .results-count {
+    padding: 8px 16px;
+    font-size: 0.75rem;
+  }
+
+  /* === Distance control === */
+  .distance-control {
+    padding: 8px 16px 0;
+  }
+}
+
+/* Extra small screens (< 380px) */
+@media (max-width: 380px) {
+  .app-title {
+    font-size: 1.2rem;
+  }
+
+  .mobile-nav-label {
+    font-size: 0.55rem;
+  }
+
+  .card-image-wrap {
+    height: 130px;
+  }
+
+  .card-name {
+    font-size: 0.95rem;
   }
 }

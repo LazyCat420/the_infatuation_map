@@ -22,6 +22,7 @@ function App() {
   const [selectedRestaurant, setSelectedRestaurant] = useState<RestaurantWithDistance | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [mobileView, setMobileView] = useState<"map" | "list">("map");
 
   const { position, error: geoError, loading: geoLoading, requestLocation } = useGeolocation();
   const { isFavorite, toggleFavorite, count: favoritesCount } = useFavorites();
@@ -138,6 +139,11 @@ function App() {
     }
   }, [nearMeActive, requestLocation]);
 
+  const handleSelectRestaurantMobile = useCallback((r: RestaurantWithDistance | null) => {
+    setSelectedRestaurant(r);
+    if (r) setMobileView("map");
+  }, []);
+
   const mapCenter = nearMeActive && position
     ? { lat: position.lat, lng: position.lng }
     : SF_CENTER;
@@ -152,7 +158,7 @@ function App() {
   }
 
   return (
-    <div className="app-container">
+    <div className={`app-container mobile-view-${mobileView}`}>
       <Sidebar
         restaurants={filteredRestaurants}
         totalCount={allRestaurants.length}
@@ -182,7 +188,7 @@ function App() {
         geoLoading={geoLoading}
         geoError={geoError}
         selectedRestaurant={selectedRestaurant}
-        onSelectRestaurant={setSelectedRestaurant}
+        onSelectRestaurant={handleSelectRestaurantMobile}
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
         isFavorite={isFavorite}
@@ -198,7 +204,42 @@ function App() {
         maxDistance={nearMeActive ? maxDistance : null}
         selectedRestaurant={selectedRestaurant}
         onSelectRestaurant={setSelectedRestaurant}
+        isFavorite={isFavorite}
+        onToggleFavorite={toggleFavorite}
       />
+
+      {/* Mobile Bottom Nav */}
+      <nav className="mobile-bottom-nav">
+        <button
+          className={`mobile-nav-btn ${mobileView === "map" ? "active" : ""}`}
+          onClick={() => setMobileView("map")}
+        >
+          <span className="mobile-nav-icon">🗺️</span>
+          <span className="mobile-nav-label">Map</span>
+        </button>
+        <button
+          className={`mobile-nav-btn ${mobileView === "list" ? "active" : ""}`}
+          onClick={() => setMobileView("list")}
+        >
+          <span className="mobile-nav-icon">📋</span>
+          <span className="mobile-nav-label">List</span>
+        </button>
+        <button
+          className={`mobile-nav-btn ${nearMeActive ? "active" : ""}`}
+          onClick={handleNearMe}
+          disabled={geoLoading}
+        >
+          <span className="mobile-nav-icon">{geoLoading ? "⏳" : "📍"}</span>
+          <span className="mobile-nav-label">Near Me</span>
+        </button>
+        <button
+          className={`mobile-nav-btn ${showFavoritesOnly ? "active" : ""}`}
+          onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+        >
+          <span className="mobile-nav-icon">{showFavoritesOnly ? "❤️" : "🤍"}</span>
+          <span className="mobile-nav-label">Favs</span>
+        </button>
+      </nav>
     </div>
   );
 }
