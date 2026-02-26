@@ -1,4 +1,5 @@
 import { formatDistance } from "../utils/distance";
+import { resolveAssetPath } from "../utils/assetPath";
 import type { RestaurantWithDistance } from "../schema";
 
 interface RestaurantCardProps {
@@ -30,7 +31,7 @@ export default function RestaurantCard({
             {restaurant.image_url && (
                 <div className="card-image-wrap">
                     <img
-                        src={restaurant.image_url}
+                        src={resolveAssetPath(restaurant.image_url)}
                         alt={restaurant.name}
                         className="card-image"
                         loading="lazy"

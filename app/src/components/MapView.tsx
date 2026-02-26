@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from "react-le
 import L from "leaflet";
 import type { RestaurantWithDistance } from "../schema";
 import { formatDistance } from "../utils/distance";
+import { resolveAssetPath } from "../utils/assetPath";
 import "leaflet/dist/leaflet.css";
 
 // Custom red pin icon
@@ -168,7 +169,7 @@ export default function MapView({
                                 <div className="info-window">
                                     {restaurant.image_url && (
                                         <img
-                                            src={restaurant.image_url}
+                                            src={resolveAssetPath(restaurant.image_url)}
                                             alt={restaurant.name}
                                             className="info-image"
                                             loading="lazy"
